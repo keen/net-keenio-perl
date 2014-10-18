@@ -14,13 +14,11 @@ $ENV{'KEEN_WRITE_KEY'} = 'write';
 my $adapter = new TestAdapter();
 my $keen = new WWW::KeenIO(http_adapter => $adapter);
 
-my $event = { 'price' => 10 };
-$keen->publish("testing", $event);
+$keen->count("testing");
 
-cmp_ok($adapter->last_key, 'eq', $ENV{'KEEN_WRITE_KEY'});
-cmp_ok($adapter->last_req->uri->as_string, 'eq', 'https://api.keen.io/3.0/projects/projectid/events/testing');
+cmp_ok($adapter->last_key, 'eq', $ENV{'KEEN_READ_KEY'});
+cmp_ok($adapter->last_req->uri->as_string, 'eq', 'https://api.keen.io/3.0/projects/projectid/queries/count');
 cmp_ok($adapter->last_req->method, 'eq', 'POST');
-cmp_ok($adapter->last_req->header('Content-Type'), 'eq', 'application/json');
-cmp_ok($adapter->last_req->content, 'eq', encode_json($event));
+cmp_ok($adapter->last_req->content, 'eq', 'event_collection=testing');
 
 done_testing();
