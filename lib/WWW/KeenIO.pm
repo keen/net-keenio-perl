@@ -1,14 +1,10 @@
 package WWW::KeenIO;
 
-use Data::Dumper;
 use JSON::MaybeXS;
-use LWP::UserAgent;
 use Moo;
+use WWW::KeenIO::HTTPAdapter;
 
 # ABSTRACT: FOO!
-
-my $BASE_URL = "https://api.keen.io";
-my $VERSION = "3.0";
 
 has 'master_key' => (
   is => 'ro',
@@ -26,6 +22,10 @@ has 'write_key' => (
   is => 'ro',
   default => sub { $ENV{'KEEN_WRITE_KEY'} }
 );
+has 'http_adapter' => (
+  is => 'ro',
+  default => sub { new WWW::KeenIO::HTTPAdapter() }
+);
 
 sub publish {
   my ($self, $coll, $event) = @_;
@@ -33,29 +33,7 @@ sub publish {
   my $json = encode_json($event);
 
   my $pid = $self->project_id;
-  $self->do_request("POST", "$BASE_URL/$VERSION/projects/$pid/events/$coll", $self->write_key, $json)
-}
-
-sub do_request {
-  my ($self, $method, $url, $key, $body) = @_;
-
-  my $ua = LWP::UserAgent->new;
-
-  $ua->default_header('Authorization' => $key);
-
-
-  my $req = HTTP::Request->new($method => $url);
-  $req->content_type('application/json');
-  $req->content($body);
-
-  my $res = $ua->request($req);
-  if ($res->is_success) {
-    print $res->content;
-  }
-  else {
-    print $res->status_line, "\n";
-  }
-
+  $self->http_adapter->do_request("POST", "/projects/$pid/events/$coll", $self->write_key, $json)
 }
 
 1;
