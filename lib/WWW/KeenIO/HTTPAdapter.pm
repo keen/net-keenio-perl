@@ -11,14 +11,7 @@ sub do_request {
 
   $ua->default_header('Authorization' => $key);
 
-  my $res = $ua->request($req);
-  if ($res->is_success) {
-    print $res->content;
-  }
-  else {
-    print $res->status_line, "\n";
-  }
-
+  return $ua->request($req);
 }
 
 1;
