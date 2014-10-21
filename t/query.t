@@ -1,7 +1,7 @@
 use Test::More;
 use Test::Exception;
 use JSON::MaybeXS;
-use WWW::KeenIO;
+use Net::KeenIO;
 
 use lib 't/lib';
 
@@ -13,7 +13,7 @@ $ENV{'KEEN_READ_KEY'} = 'read';
 $ENV{'KEEN_WRITE_KEY'} = 'write';
 
 my $adapter = new TestAdapter();
-my $keen = new WWW::KeenIO(http_adapter => $adapter);
+my $keen = Net::KeenIO->new(http_adapter => $adapter);
 
 # COUNT
 

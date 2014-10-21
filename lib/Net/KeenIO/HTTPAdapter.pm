@@ -1,4 +1,4 @@
-package WWW::KeenIO::HTTPAdapter;
+package Net::KeenIO::HTTPAdapter;
 
 use HTTP::Request::Common;
 use LWP::UserAgent;

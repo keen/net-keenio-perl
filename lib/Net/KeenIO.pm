@@ -1,9 +1,9 @@
-package WWW::KeenIO;
+package Net::KeenIO;
 
 use HTTP::Request::Common;
 use JSON::MaybeXS;
 use Moo;
-use WWW::KeenIO::HTTPAdapter;
+use Net::KeenIO::HTTPAdapter;
 
 # ABSTRACT: FOO!
 
@@ -14,10 +14,10 @@ use WWW::KeenIO::HTTPAdapter;
   # KEEN_MASTER_KEY
   # KEEN_WRITE_KEY
   # KEEN_READ_KEY
-  my $keen = WWW::KeenIO->new();
+  my $keen = Net::KeenIO->new();
 
   # Or, supply your own!
-  my $keen = WWW::KeenIO->new(
+  my $keen = Net::KeenIO->new(
     project_id => 'whatever',
     master_key => 'master_key',
     write_key => 'write_key',
@@ -62,7 +62,7 @@ has 'write_key' => (
 );
 has 'http_adapter' => (
   is => 'ro',
-  default => sub { WWW::KeenIO::HTTPAdapter->new() }
+  default => sub { Net::KeenIO::HTTPAdapter->new() }
 );
 
 sub count {
