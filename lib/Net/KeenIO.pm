@@ -33,6 +33,23 @@ use Net::KeenIO::HTTPAdapter;
     referred_by => 'harry'
   });
 
+  # Send an event by providing a collection name and a hashref
+  # It will be automatically stringified by JSON::MaybeXS
+  # Returns an HTTP::Response object!
+
+  $keen->batch_publish({
+    'signups', [
+      {
+        username => 'lloyd',
+        referred_by => 'harry'
+      },
+      {
+        username => 'munter',
+        referred_by => 'hans'
+      }
+    ]
+  });
+
   # See how many signups we got with a count query.
   # Returns an HTTP::Response object!
 
@@ -45,24 +62,24 @@ use Net::KeenIO::HTTPAdapter;
 my $BASE_URL = "https://api.keen.io/3.0";
 
 has 'master_key' => (
-  is => 'ro',
-  default => sub { $ENV{'KEEN_MASTER_KEY'} }
+    is => 'ro',
+    default => sub { $ENV{'KEEN_MASTER_KEY'} }
 );
 has 'project_id' => (
-  is => 'ro',
-  default => sub { $ENV{'KEEN_PROJECT_ID'} }
+    is => 'ro',
+    default => sub { $ENV{'KEEN_PROJECT_ID'} }
 );
 has 'read_key' => (
-  is => 'ro',
-  default => sub { $ENV{'KEEN_READ_KEY'} }
+    is => 'ro',
+    default => sub { $ENV{'KEEN_READ_KEY'} }
 );
 has 'write_key' => (
-  is => 'ro',
-  default => sub { $ENV{'KEEN_WRITE_KEY'} }
+    is => 'ro',
+    default => sub { $ENV{'KEEN_WRITE_KEY'} }
 );
 has 'http_adapter' => (
-  is => 'ro',
-  default => sub { Net::KeenIO::HTTPAdapter->new() }
+    is => 'ro',
+    default => sub { Net::KeenIO::HTTPAdapter->new() }
 );
 
 sub count {
@@ -70,7 +87,7 @@ sub count {
 
   my $pid = $self->project_id;
   my $req = POST("$BASE_URL/projects/$pid/queries/count", 'Content' => {
-    event_collection => $coll
+      event_collection => $coll
   });
   $self->http_adapter->do_request($req, $self->read_key);
 }
@@ -126,9 +143,17 @@ sub publish {
 
   my $pid = $self->project_id;
 
-  my $req = POST("$BASE_URL/projects/$pid/events/$coll", 'Content-Type' => 'application/json', 'Content' => $json);
+  my $baseUrl = $coll ? "$BASE_URL/projects/$pid/events/$coll" : "$BASE_URL/projects/$pid/events";
+
+  my $req = POST($baseUrl, 'Content-Type' => 'application/json', 'Content' => $json);
 
   $self->http_adapter->do_request($req, $self->write_key);
+}
+
+sub batch_publish {
+  my ($self, $events) = @_;
+
+  $self->publish(undef, $events)
 }
 
 sub select_unique {
